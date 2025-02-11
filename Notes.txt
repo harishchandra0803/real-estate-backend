@@ -1,0 +1,574 @@
+(PART-1)
+set up reactjs and tailwind and create github repo
+
+-> use command -> npm create vite@latest client 
+-> Framework -> react 
+-> variant: » JavaScript + SWC
+-> client is the name of the folder
+
+-> To move from main folder[MERN_REAL_ESTATE] to client -> cd client 
+-> INSTALL node -> npm install 
+
+->Than install Tailwind CSS from -> https://tailwindcss.com/docs/guides/vite 
+-> Install this extension -> ES7+ React/Redux/React-Native snippets , Auto Rename Tag , 
+console-ninja , GitHub Copilot , GitHub Copilot Chat , Prettier - Code formatter, Tailwind CSS IntelliSense 
+
+-> Uploading to Github -> using git and command 
+
+
+
+(PART-2) 
+-> Its about creating routes in React 
+create pages and routes
+inside src folder create pages folder
+inside pages folder create pages about.jsx,Home.jsx,Signin.jsx,SignOut.jsx
+
+install react router dom in client folder for client side routing
+inside browser router specify routes and route and path and element for client side routing
+
+update to git using vs code without commands
+
+
+
+(PART-3)
+create header Component which is common for all pages
+src -> create folder -> components -> Header.jsx -> Header appears in all the pages than created in Part-2
+-> in header.jsx -> change tag to meaningfull name for seo purposes 
+-> than applying some css to Urban Estate name and Using FlexWrap 
+-> install npm i react-icon in client folder to add icon 
+-> adding responsiveness using tailwind css like first mobile version than desktop version css
+useNavigate() hook from react router dom is used for navigating to different pages
+
+
+-- 
+Now work on backend part of project and create sign in and sign out part of the pages and create api of routes 
+and intereact between client and backend
+
+(PART-4)
+create and run the server
+create folder api in mern real estate
+go to folder mern real estate and create package.json using npm init -y 
+npm install express in mern estate using npm install express
+->To run index.js use -> node api/index.js , be in mern real estate folder only and open from api index.js file 
+->Also, install -> npm i nodemon -> to help not to again start server -> any changes automatically reflected
+
+
+(PART-5) 
+-> connect to database our server and using mongoose package to connect to our database
+connect to db
+npm install mongoose in mern-estate
+npm install dotenv in mern-estate
+create .env file in mern-estate and add MONGO variable assigned to the connection string
+import the dotenv module in index.js
+dotenv.config()
+add .env file to .gitignore before commit this won't push .env file to github 
+->connecting to db little bit complex see accordingly -> add ip address 0.0.0.0/0 
+
+(PART-6) -> Create User Model 
+->create first model for our database users which set some rules and conditions that can be added to our database
+-> Inside api folder -> create models -> than create schema here 
+
+(PART-7) -> Create a test API route
+-> Creating first api routes which is test api route 
+-> open api folder -> index.js -> create route 
+-> api folder -> create routes folder and controllers folder 
+-> created the route and tested its working -> using http://localhost:3000/api/user/test
+
+(PART-8)
+->creating SIGNUP api route
+->so that user can signup on our application
+-> get information like username,mail,password from client side 
+-> hash the password and save inside the database 
+-> routes created inside route folder but function written inside controllers folder
+-> download insomnia api 
+-> we don't want to save our password in database directly because if someone hacks database they get access to password or admin has access of password
+-> therefore hash it or encrypt for that in mern real estate folder download this package npm i bcryptjs
+-> controllers folders -> inside it 2 3 files 
+
+(PART-9) 
+->Creating a Middlewares and a function to handle possible erros 
+-> middlewares takes care of the errors 
+-> create inside api folders -> utils folder -> throw error like password not long enough -> this are custom error created by us -> function name is errorHandler inside utils->error.js
+
+(PART-10) 
+->Creating UI of SIGN-UP PAGE 
+->inside client->src->pages->signup.jsx go there and create signup page UIs (styling)
+
+(PART-11) -> Complete Sign up page functionality 
+->Adding functionality to signup page using Onchange event listener and when submitting details like username , password and mail add it to database
+-> use onSubmit={handleSubmit} event listener in form tag 
+-> creating proxy of server -> go to vite.config.js and do it -> '/api' -> 'http://localhost:3000' -> whenever seeing /api replace by localhost3000 one
+-> handling different error and adding users to database 
+-> useNavigate to navigate from sign-up page to signin page when user created successfully [when they click on sign-up button] and added to database
+
+
+(PART-12) 
+-> Creating sign in api route
+-> sign in the users and authenticate them
+-> first go to routes folder -> auth route file -> create sign in route
+-> authenticating user here with there mail and password -> go to controller folder -> auth.controller.js -> here authenticating
+->if both mail password correct authenticate the user -> using add cookie inside a browser -> install json webtoken inside mern real estate folder -> using npm i jsonwebtoken 
+-> add signin route to route folder -> insider auth.route.js 
+
+CODE -> controller folder -> auth.controller.js
+
+
+export const signin = async (req,res,next)=>{
+ //get data from req.body mails and password 
+ const {email , password} = req.body;
+
+ try{
+    //check if email exist than only check password 
+    const validUser = await User.findOne({email}) ; 
+    if(!validUser) return next(errorHandler(404,'User not found!'));
+    //else mail exist now see password -> compare user password written with password coming from db
+    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    if (!validPassword) return next(errorHandler(401, 'Wrong credentials!'));
+
+    //now,if both mail password correct authenticate the user -> using add cookie inside a browser 
+    //for all user inside db unique id assign using that for creating token and authenticating user
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+
+    //we don't want to see password of the user even hashed one -> destructure the password i.e remove from rest information 
+    //now no woory of password leak problem
+    const { password: pass, ...rest } = validUser._doc;
+
+      //now,save the token as cookies 
+    res
+      .cookie('access_token', token, { httpOnly: true }) //httpOnly:true makes sure no 3rd party has cookie access
+      .status(200)
+      .json(rest);
+ }catch(error){
+    next(error);
+ }
+
+};
+
+
+(PART-13) 
+->complete sign in page functionality 
+->work on ui and connect it to database 
+-> have interactivity between frontend and the backend 
+-> remember I have used Signin.jsx file name not SignIn.jsx 
+->same as PART-12 
+->here, after signin navigate to home page 
+->if trying to signin with wrong mail -> user not found! message comes 
+->if trying to signin with wrong password -> wrong credentials! message comes 
+
+(PART-14) 
+->Adding Redux ToolKit 
+-> Using Redux toolkit we will have global state instead of local state
+->instead of passing data in different components and pages we will store the data using redux toolkit like -> header info  , profile info etc 
+-> allows to access user data in different places than 
+-> download rules from https://redux-toolkit.js.org/tutorials/quick-start 
+-> download redux dev tools and see action & states accordingly than -> like sign in start , success & failure and test sign in page
+
+(PART-15)
+-> if refreshing signin page -> we loose data -> user need to signin again -> problem 
+->Add Redux Persist ->to fix this problem and store data in local storage of browsers
+->adding user data in local storage using redux persist -> download inside client folder using -> npm i redux-persist
+-> user added now in signin page -> refresh the page -> user details still there with persist help -> i.e uses local storage for this purposes 
+-> to check open sign in page -> right click -> inspect -> go to redux and see in state
+->go to application -> local storage -> current user information stored there 
+
+(PART-16)
+-> Add Google OAuth Functionality 
+-> inside sign up page -> continue with google option there 
+-> src folder -> components folder -> create OAuth.jsx 
+-> Add OAuth to Signin and Signup pages 
+-> we added continue with google inside form so if clicking on this button it submits signin/signup page to prevent -> inside OAuth.jsx add type='button'
+->go to firebase() -> create project and set up & install -> npm install firebase inside client folder
+
+
+-> continue with google -> on clicking a pop up windows come -> make sure to have 2 3 mail account added -> else if only 1 added pop up not shown 
+-> I added 3 account 
+-> when continue with google -> using account to continue -> it displayls in console many thing -> we need 3 crucial Information 
+-> 1. display name , 2. email , 3. photo url of mail -> than send this data to backend to create this user 
+-> In OAuth.jsx basically frontend of the google OAuth functionality is created -> now create backend ->go to api folder-> go to routes folder 
+-> go to auth.route.js -> create function insider controllers folder -> inside auth.controllers.js
+-> after continue with google -> we redirect to home page 
+
+export const google = async (req, res, next) => {
+   try {
+      //check if user existed or not -> if not create user -> else signin the user
+     const user = await User.findOne({ email: req.body.email });
+     //user exixts and authenticating them and signing them
+     if (user) {
+       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+       const { password: pass, ...rest } = user._doc;
+       res
+         .cookie('access_token', token, { httpOnly: true })
+         .status(200)
+         .json(rest); //sending back the user data 
+     } else { 
+      //create the user , in models -> user.model.js -> requires password: true -> create your own password
+       const generatedPassword =
+         Math.random().toString(36).slice(-8) +
+         Math.random().toString(36).slice(-8);
+       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+       const newUser = new User({
+         username:
+           req.body.name.split(' ').join('').toLowerCase() +
+           Math.random().toString(36).slice(-4),
+         email: req.body.email,
+         password: hashedPassword,
+         avatar: req.body.photo,
+       });
+       await newUser.save();
+       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+       const { password: pass, ...rest } = newUser._doc;
+       res
+         .cookie('access_token', token, { httpOnly: true })
+         .status(200)
+         .json(rest);
+     }
+   } catch (error) {
+     next(error);
+   }
+ };
+
+
+(PART-17) - update the header and make the profile page private 
+-> updating the header section and showing the user who sign in there avatar and once we click on avatar showing user profile page 
+-> making user profile page private i.e if person not signin they are not allowed to see profile page 
+-> go to src -> components folder -> Headers.jsx -> show signin if user not authenticated and show avatar of user if authenticated 
+-> if in sign-in page and user signout and we try to again go to user profile page we are directed to sign-in page again 
+-> i.e profile page is authenticated 
+
+
+(PART-18)
+->Complete Profile Page UI 
+->insider src -> pages -> profile.jsx -> created the UI -> http://localhost:5173/profile
+-> LIKE Title, profile image and a form (for username,mail,password) 
+
+(PART-19) 
+->complete image upload functionality
+-> change user image -> and add to firebase storage -> so that our file is stored there 
+-> go to profile.jsx -> use input type as "file" and add a reference to image 
+-> when clicking on profile picture we will accept only image. 
+-> creating firebase storage and do the set up 
+-> useEffect hook used 
+-> uploading image percentage sie like 5 10 20 30 ... 100 
+->handleFileUpload()-> takes snapshot of image and upload it , handles error , download url of avatar 
+-> tell the user whether image uploaded successfully if 100% or any kind of error found like not a image file or image > 2mb 
+-> if everything works fine on clicking profile we can update avatar and new photo shown 
+
+
+(PART-20) 
+->Create update user API route
+-> in backend -> to update user there 
+-> go to api -> routes -> user.routes.js -> create update route 
+-> extra checking in updating -> like check if person is authenticated or not 
+-> i.e when we sign in the user we created token inside the cookie use that token to verify the users 
+-> if updating wrong user or not authenticated -> give error  
+-> inside utils folder -> create verifyUser.js -> install npm i cookie-parser inside mern real estate folder -> for cookies purpose 
+-> now verify using token in verifyUser.js user 
+-> go to controller -> go to userController.js -> write logic of updating && routes -> userRoute.js -> create update && verify route
+-> set method is used to check if data is being changed like user updated mail but not username so on else ignore the data 
+-> open insomnia -> send post request and see working of update route like -> localhost:3000/api/user/update/663f061957dad12d4dfd8190 
+-> where last no. 663f...90 is id of user who signin and it is being updated , this id is always unique 
+
+if error this message comes from insomnia 
+
+	"success": false,
+	"statusCode": 401,
+	"message": "You can only update your own account!"
+}
+
+
+(PART-21)
+->Complete Update User Functionality
+->Connect frontend with backend 
+->Add event listener for profile page forms 
+->and than connect to api 
+-> onchange(for mail & username update) and onsubmit(in form) event listener used 
+-> also go to redux folder -> userSlice.js -> add 3 more reducers for update user 
+-> here redux toolkit concept used 
+-> user updated successfully if no problem occurs else showing unauthorized error -> first continue with google and do the update to your account 
+
+(PART-22)
+-> Add Delete User Functionality
+-> create deleteUser Api route inside route-> userRoute.js 
+-> go and define route inside controller folder -> inside userController.js 
+-> go to insomnia and make request to delete and delete user account -> after that they won't be able to signin 
+-> similar to part-21 create reducers for delete in userSlice.js
+-> after clicking on delete account user re-directed to sign-in page 
+-> after user deleted -> it is removed  from local storage and cookies both 
+
+
+(PART-23)
+->Add Sign Out User Functionality
+-> create Sign Out Api route inside route-> auth.Route.js -> it will be a get Request 
+-> go and define route inside controller folder -> inside authController.js
+-> for sign out we just need to clear the cookie 
+-> go to frontend -> pages -> profile.jsx -> add onClick event listener to signout button
+-> similar to part-21 create reducers for signout in userSlice.js
+-> after clicking on sign out account user re-directed to sign-in page
+
+
+(PART-24)
+->Add Create Listing API route
+-> create listing section -> work on api and also on ui of create listing
+-> add route to index.js ->  app.use('/api/listing', listingRouter);
+-> go to route -> create listing.route.js file
+-> go to controller folder -> create listing.controller.js file and define route 
+-> creating listing schema inside models -> create listing.model.js 
+-> go to insomnia and create a listing  with following details as a post request -> localhost:3000/api/listing/create
+
+{
+	"name": "test",
+	"description": "test",
+	"address": "test",
+	"regularPrice": 500,
+	"discountPrice": 500,
+	"bathrooms": 5,
+	"bedrooms": 5,
+	"furnished": true,
+	"parking": true,
+	"type": "rent",
+	"offer": true,
+	"imageUrls": ["dhfe" , "efhoehf"],
+	"userRef": "oeifheofhe8fhei9"
+}
+
+-> this will create a unique id for listing 
+
+(PART-25)
+-> complete create listing page UI
+-> further than create image upload functionality and create listing functionality 
+-> responsiveness added to the ui for mobile size screen and laptop size screen 
+-> add create listing link in profile.jsx
+-> add CreateListing.jsx file inside pages folder -> this is a private page -> shown to authenticated user only -> therefore add it to private route in app.jsx
+-> to make seo friendly create listing page using <main> tag instead of div as return type in CreateListing.jsx
+-> uses css for ui part 
+-> listing takes -> form for name,description,address and than check boxes and than input type and than image upload things 
+-> http://localhost:5173/create-listing
+
+
+(PART-26)
+-> complete upload listing images Functionality
+-> upload upto 6 images and handle all errors associated with it 
+-> also show the image after upload under the input 
+-> add onchange event listeners so that when we choose files( images ) they are set into some piece of states and stored 
+-> since uploading more than one image we use promise as it will have asynchronous behaviour and thus waiting for all image to get uploaded -> return a promise therefore
+-> user can see the image they uploaded also they can delete that images 
+-> how to show images to user -> it is stored in a state formData using the imageUrls get the url and that from the states show that url image 
+-> to delete image -> using onchange event listener and from state fromData we apply filter logic to find the index of the image to be deleted and delete that image 
+
+(PART-27)
+-> complete create listing page Functionality
+->submit all information from create listing to database
+->go to createListing.jsx and do 
+->when ever we check any option its shown in formData as an object with type = rent (example) 
+-> handles all int,check box type value when setting form data in handleChange function which is basically and onChange event listener
+-> fix all the errors like if no image dont create listing 
+->error (Discount price must be lower than regular price) ->       if (+formData.regularPrice < +formData.discountPrice) -> + use to convert from string to int 
+->Discount price shown only if clicking on offer else not shown 
+-> when listing created redirect user to listing page based on the user id listing page is created for redirecting
+-> first sign out before using -> than signin/continue with google -> go to create listing -> http://localhost:5173/listing/66436b2b794a290b7c885f46 
+
+(PART-28)
+-> Create get user listings API route
+-> this will basically show the listings we created in part-27 of a user 
+-> create a api route for the end point to get information 
+-> api folder -> route folder -> user.route.js  -> router.get('/listings/:id', verifyToken, getUserListings)
+-> go to insomnia and do api testing 
+
+(PART-29)
+-> complete show user listings functionality
+->  connect the client to backend and get the information of the user 
+-> create a show listing button if clicking on it -> it will show all the listings which can be edited and deleted
+
+(PART-30)
+-> complete delete user listing Functionality
+-> Working on delete functionality of PART-29
+-> when we delete a listing it is also removed from the database 
+-> adding event listener to delete option -> which request from api route 
+-> create api route for delete functionality -> go to listing.route.js -> than go to listing.controller.js and define the route 
+-> integrate delete in client side section as well -> inside profile.jsx 
+-> creating listing here -> http://localhost:5173/create-listing 
+-> even if we refresh page after deleting listing and again show listing -> deleted listing not shown -> i.e deleted from database as well 
+
+(PART-31)
+-> create update listing API route
+-> working on edit functionality of listings and updating the listings 
+->first working on api route of it and than completing functionality
+-> create api route for update functionality -> go to listing.route.js -> than go to listing.controller.js and define the route 
+
+(PART-32)
+-> complete update listing Functionality
+-> Adding ApI client side of edit to route 
+-> create UpdateListing.jsx inside pages folder inside client folder  -> same as createListing.jsx 
+-> UpdateListing.jsx page opens when we click on edit listing option in show listing part 
+->http://localhost:5173/update-listing/6643ae9c5ffd75754be0ffac -> user id also appears for that id update the listings 
+-> based on the id we will create a api route for getting the listing 
+-> go to api folder -> route folder -> listing.route.js -> get the listing
+
+(PART-33)
+-> Add image slider to the listing page 
+-> if we click on the listing name after show listing it gets opened 
+-> create listing page inside pages folder which gets open on clicking on lisitings 
+-> install swiper package so that image can be swipped inside client folder 
+-> if we have more than one image in our listing than we can slide it right side i.e swipe 
+
+(PART-34) 
+-> Complete listing page 
+-> go inside pages -> upate listing.jsx -> when we click on show listing and than on listing name -> listing details appeared with image first and than the details
+-> this will show all the details of listing page like bed , bathrooms , cost , sell  or rent, parking etc with images and icons for details.
+
+(PART-35) 
+-> Add contact landlord functionality to the listing page
+-> free version of render -> if no traffic on website goes to sleep state -> if traffic active else takes time to wake 
+-> adding a contact landloard option to listing page if property is of rent and message to send to landloard which is basically mail 
+-> create authenticating conditions -> like other than owner of the property (like who created the listing) only sees the contact landloard option 
+-> when we click on contact landloard button we remove it and we want a piece of state contact to be active at that time done using onchange event listener 
+-> go to components folder and create a component name contact.jsx 
+-> we want to have information of landloard -> create a api route for fetching information of a user but for that we need to be authenticated as well 
+-> go to api folder - route -> user.Route.js -> router.get('/:id', verifyToken, getUser) ->  user.controller.js -> define getUser 
+-> go in contact.jsx and attach this api route created along with the frontend 
+-> in contact.jsx we create state like landlord and message to store information 
+-> but for seeing contact landlord option signin from other account but before that copy the link of listing from landlord -> than we can see contact landlord option 
+-> after clicking on send message mail opens with landloard mail and subject is regarding + listing name and body is content of message 
+
+(PART-36) 
+-> create search api route
+-> MOST DIFFICULT PART OF THE PROJECT -> IF ASK FOR DIFFICULTY FACED SAY THIS -> ******** REMEMBER *********
+-> add the api route for search functionality -> able to create some conditions for search etc 
+-> go to api folder -> listing.route.js and than to listing.controller.js
+-> using search -> type some keywords -> based on all the matches we show listing results with sort functionality by latest , old to new and vice versa 
+and all things like bed,bathroom,cost etc and based on checks than the search results are modified 
+-> also show more button at bottom to show more listings based on the search 
+-> in insomnia (inside listing -> search ) -> localhost:3000/api/listing/get -> get request to get listings 
+-> for searching -> localhost:3000/api/listing/get?searchTerm=flat -> return all the name having flat 
+-> for limiting -> localhost:3000/api/listing/get?searchTerm=flat&limit=2 
+-> in listing.controller.js :-
+ 
+  export const getListings = async (req, res, next) => {
+    try {
+      //if limit there take it else use 9 
+      const limit = parseInt(req.query.limit) || 9;
+      const startIndex = parseInt(req.query.startIndex) || 0;
+      let offer = req.query.offer;
+  
+      if (offer === undefined || offer === 'false') {
+        offer = { $in: [false, true] }; 
+        //search offer inside our db both for true and false as offer since user didn't choose any offer 
+        //search for both offer and no offer in our db and return them as a result
+      }
+  
+      let furnished = req.query.furnished;
+  
+      if (furnished === undefined || furnished === 'false') {
+        furnished = { $in: [false, true] };
+      }
+  
+      let parking = req.query.parking;
+  
+      if (parking === undefined || parking === 'false') {
+        parking = { $in: [false, true] };
+      }
+  
+      let type = req.query.type;
+  
+      //default behaviour -> both rent and sale choose and searched 
+      if (type === undefined || type === 'all') {
+        type = { $in: ['sale', 'rent'] };
+      }
+  
+      const searchTerm = req.query.searchTerm || '';
+  
+      const sort = req.query.sort || 'createdAt';
+  
+      const order = req.query.order || 'desc';
+    // regex is the built  in search functionality in mongoDB
+    //in whole title of listing we search for searchTerm like xyz abc xyz 
+    //in whole title we see for xyz if thats our search term 
+    //even some part of word can be searched like xy or x etc 
+    //options: 'i' means don't care about lower case or upper case while searching 
+      const listings = await Listing.find({
+        name: { $regex: searchTerm, $options: 'i' },
+        offer,
+        furnished,
+        parking,
+        type,
+      })
+        .sort({ [sort]: order })
+        .limit(limit)
+        .skip(startIndex);
+  
+      return res.status(200).json(listings); //return listings to the user 
+    } catch (error) {
+      next(error);
+    }
+  };
+
+(PART-37) 
+-> complete header search form functionality
+-> open header.jsx -> inside src -> components 
+-> when we search for something in search bar and press enter or click search icon -> url of website changes with that searchTerm 
+-> keep a state for searchTerm 
+->like if we search for flat in search bar, url modified to http://localhost:5173/search?searchTerm=flat 
+-> if in url changing flat to other thing search bar also modified -> done using useEffect 
+
+useEffect(() => {
+      const urlParams = new URLSearchParams(location.search);
+      const searchTermFromUrl = urlParams.get('searchTerm');
+      if (searchTermFromUrl) {
+        setSearchTerm(searchTermFromUrl);
+      }
+    }, [location.search]);
+
+(PART-38)
+-> Create search page UI
+-> create Search.jsx inside pages folder & add the route to app.jsx 
+-> search page has 2 part -> 1st part (form) all listing details like cost,bed,baths etc and 2nd part lisitng reults according to searchTerm 
+-> this will create only the ui in the next part -> we will get all the information from the form and add the ability to search and change the url as well 
+
+(PART-39)
+-> add onChange and onSubmit functionality to the search page
+-> create a state   const [sidebardata, setSidebardata] , which tracks all the listing details and will display all of them in search url when clicking on search 
+-> using different function for onchange & onSubmit event listener for handling changes , submiting the changes etc 
+-> any time sidebardata changes if we search for a listing than using useEffect search url is modified 
+-> if searching for domething in right side in search icon it is also modified in left side search Term using useEffect 
+-> http://localhost:5173/search?searchTerm=flat&type=sale&parking=true&furnished=true&offer=true&sort=created_at&order=desc 
+from url also we can change things it get reflected to search page as well 
+
+(PART-40) 
+-> Create the listing item component and show listings
+-> show all the information according to our search in listing results i.e some carts created to show them 
+-> carts are basically components which show all the information of listing like price , name , description etc 
+-> create ListingItem.jsx inside components folder inside src folder 
+-> do changes in search.jsx to show the listing results if listing found for the corresponding searchTerm else show no listing found 
+-> get all the listing inside ListingItem.jsx as inputs 
+-> install tailwind css line clamp it truncates description to like 2 lines than followed by ..
+npm install -D @tailwindcss/line-clamp
+-> in listing result we show only 9 listings if more than that use a show more button in (next part) 
+
+
+(PART-41)
+-> add show more listings funtionality
+-> Create setShowMore and set it true if we have more than or equal to 9 listings 
+->  use onclick event listener for show more button -> onShowMoreClick this function define it (done inside search.jsx) 
+
+(PART-42)
+-> complete home page
+-> Landing page and showing listing carts and image slider 
+-> 3 section created in home page for offer , rent and than for sale 
+-> we limit to 4 listing for each section 
+->  rent section loaded after offer section gets loaded 
+-> sale section loaded after rent section gets loaded 
+-> show more offers/rent options also added in every section 
+
+(PART-43)
+->complete about page 
+-> about.jsx inside page folder
+
+(PART-44)
+->Deploy to Render
+-> do changes in package.json and index.js (inside api folder)
+-> in package.json add a script to run in a client side
+-> "build": "npm install && npm install --prefix client && npm run build --prefix client"
+first build the backend and than install the client side and than build the client side 
+-> during npm run build -> dist folder created
+-> than go to index.js -> create a dynamic path name so that our code works anywhere 
+->go to render now and deploy
