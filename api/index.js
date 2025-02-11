@@ -9,7 +9,6 @@ import path from 'path' ;
 dotenv.config({path: './api/config/config.env'}); 
 import cors from "cors";
 
-app.use(cors());
 
 
 
@@ -22,6 +21,8 @@ mongoose.connect(process.env.MONGO).then(()=>{
 const __dirname = path.resolve();
 
 const app = express(); 
+app.use(cors());
+
 app.use(express.json()) ; //allow to send json to server as input
 
 app.use(cookieParser()) ;
