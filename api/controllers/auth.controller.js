@@ -40,7 +40,7 @@ export const signin = async (req,res,next)=>{
 
       //now,save the token as cookies 
     res
-      .cookie('access_token', token, { httpOnly: true }) //httpOnly:true makes sure no 3rd party has cookie access
+      .cookie('access_token', token, { httpOnly: true, sameSite: 'None', }) //httpOnly:true makes sure no 3rd party has cookie access
       .status(200)
       .json(rest);
  }catch(error){
