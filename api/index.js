@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO).then(()=>{
 const __dirname = path.resolve();
 
 const app = express(); 
-app.use(cors({origin: 'https://real-estate-frontend-izvt.onrender.com/', credentials: true,}));
+app.use(cors({origin: true, credentials: true,}));
 
 app.use(express.json()) ; //allow to send json to server as input
 
